@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimal Level Editor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header>
+        <div><p class="eyebrow">10 × 100 PLATFORMER</p><h1>Minimal Level Editor</h1></div>
+        <div class="mode-toggle" role="group" aria-label="Mode"><button data-mode="edit" class="active">Edit</button><button data-mode="play">Play</button></div>
+      </header>
+      <section class="workspace">
+        <aside id="editorPanel">
+          <p class="panel-label">Tool</p>
+          <div id="palette" class="palette"></div>
+          <p class="hint">Click or drag on the grid to place tiles. Use the arrow keys or A/D to choose a segment.</p>
+          <button id="shareLevel" class="quiet">Copy share link</button>
+          <button id="clearSegment" class="quiet">Clear this segment</button>
+        </aside>
+        <section class="stage-wrap">
+          <div class="segment-bar"><button id="prevSegment" aria-label="Previous segment">←</button><strong id="segmentLabel">Segment 1 / 10</strong><button id="nextSegment" aria-label="Next segment">→</button></div>
+          <canvas id="game" width="600" height="600" aria-label="Level grid"></canvas>
+          <p id="status" class="status">Edit mode · select an object and draw your level.</p>
+        </section>
+      </section>
+      <footer><span>Move: <kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></span><span>Jump: <kbd>W</kbd> / <kbd>↑</kbd> / <kbd>Space</kbd></span><button id="resetLevel" class="quiet">Reset level</button></footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
