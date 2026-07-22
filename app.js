@@ -1,15 +1,15 @@
 const W = 10, H = 10, SEGMENTS = 10, TILE = 60, WORLD_W = W * SEGMENTS * TILE;
 const TYPES = { spawn:{label:'Spawn', color:'#65d6ff'}, block:{label:'Block', color:'#d5d9cf'}, checkpoint:{label:'Checkpoint', color:'#ffc857'}, spikes:{label:'Spikes', color:'#ff5c77'}, goal:{label:'Goal', color:'#ccff55'}, erase:{label:'Eraser', color:'#667066'} };
+const SHARE_CODES = { null:'n', spawn:'s', block:'b', checkpoint:'c', spikes:'p', goal:'g' };
+const SHARE_TYPES = Object.fromEntries(Object.entries(SHARE_CODES).map(([type,code])=>[code,type==='null'?null:type]));
 const canvas = document.querySelector('#game'), ctx = canvas.getContext('2d');
 let level = loadLevel(), segment = 0, mode = 'edit', tool = 'block', drawing = false, keys = new Set();
 const tuning = { jumpHeight: 9, apexGravity: 7 };
 let player = { x: 95, y: 300, w:34, h:46, vx:0, vy:0, grounded:false, lastGrounded:0, lastJumpPress:-Infinity, checkpoint:null };
 let last = performance.now(), won = false;
 function blank() { return Array.from({length: W * H * SEGMENTS}, () => null); }
-const SHARE_CODES = { null:'n', spawn:'s', block:'b', checkpoint:'c', spikes:'p', goal:'g' };
-const SHARE_TYPES = Object.fromEntries(Object.entries(SHARE_CODES).map(([type,code])=>[code,type==='null'?null:type]));
-function encodeLevel(value) { let result='v2.'; for(let i=0;i<value.length;){let length=1;while(i+length<value.length&&value[i+length]===value[i])length++;result+=`${i?',':''}${SHARE_CODES[value[i]]}${length.toString(36)}`;i+=length;} return result; }
-function decodeLevel(value) { try { if(value.startsWith('v2.')){const result=[];for(const token of value.slice(3).split(',')){const type=SHARE_TYPES[token[0]],count=parseInt(token.slice(1),36);if(type===undefined||!Number.isInteger(count)||count<1)return null;result.push(...Array(count).fill(type));}return result.length===1000?result:null;} const padded=value.replaceAll('-','+').replaceAll('_','/')+'==='.slice((value.length+3)%4); const parsed=JSON.parse(atob(padded)); return Array.isArray(parsed) && parsed.length===1000 ? parsed : null; } catch { return null; } }
+function encodeLevel(value) { let result='v2.'; for(let i=0;i<value.length;){let length=1;while(i+length<value.length&&value[i+length]===value[i])length++;result+=`${i?',':''}${SHARE_CODES[value[i]]}${length.toString(36)}`;i+=length;} return encodeURIComponent(result); }
+function decodeLevel(value) { try { value=decodeURIComponent(value); if(value.startsWith('v2.')){const result=[];for(const token of value.slice(3).split(',')){const type=SHARE_TYPES[token[0]],count=parseInt(token.slice(1),36);if(type===undefined||!Number.isInteger(count)||count<1)return null;result.push(...Array(count).fill(type));}return result.length===1000?result:null;} const padded=value.replaceAll('-','+').replaceAll('_','/')+'==='.slice((value.length+3)%4); const parsed=JSON.parse(atob(padded)); return Array.isArray(parsed) && parsed.length===1000 ? parsed : null; } catch { return null; } }
 function loadLevel() { const shared=location.hash.match(/^#level=([^&]+)/); const fromUrl=shared && decodeLevel(shared[1]); if(fromUrl) return fromUrl; try { const v = JSON.parse(localStorage.minimalLevel || 'null'); return Array.isArray(v) && v.length === 1000 ? v : blank(); } catch { return blank(); } }
 function save() { localStorage.minimalLevel = JSON.stringify(level); }
 function index(x,y) { return y * W * SEGMENTS + ((x % (W * SEGMENTS) + W * SEGMENTS) % (W * SEGMENTS)); }
